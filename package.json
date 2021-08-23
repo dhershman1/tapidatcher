@@ -1,0 +1,32 @@
+{
+  "name": "tapidatcher",
+  "version": "0.1.0",
+  "description": "An easy way to intelligentally watch your tape tests",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "standard index.js | snazzy"
+  },
+  "bin": {
+    "tapidatcher": "bin/tapidatcher"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dhershman1/tapidatcher.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dhershman1/tapidatcher/issues"
+  },
+  "homepage": "https://github.com/dhershman1/tapidatcher#readme",
+  "dependencies": {
+    "chokidar": "3.5.2",
+    "minimist": "1.2.5"
+  },
+  "devDependencies": {
+    "snazzy": "^9.0.0",
+    "standard": "^16.0.3"
+  }
+}
