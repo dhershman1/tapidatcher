@@ -77,6 +77,11 @@ function formatFileName (parsed, ending) {
   return `${parsed.name}${ending}`
 }
 
+/**
+ * Creates a intelligent watcher for tape tests
+ * @public
+ * @param {Object} args The arguments object from the terminal command
+ */
 function tapidatcher (args) {
   const watcher = createWatcher(args)
   const isIgnored = checkIgnored(new Set(['node_modules'].concat(args.ignore)))
