@@ -25,7 +25,6 @@ function print (err, stdout) {
  * @returns {Object} A chokidar watcher object
  */
 function createWatcher ({ inline, src, tests }) {
-  console.log('inline :>> ', inline)
   if (!inline && (!src || !tests)) {
     throw new Error('Tapidatcher requires at least the -i or the -s -t arguments')
   }
