@@ -109,14 +109,16 @@ function tapidatcher (args) {
       filePath = await findTest(parsed, args)
     }
 
-    fs.stat(filePath)
-      .then(() => exec(`${envVars} npx -c "tape ${filePath}${args.pipe ? ` | ${args.pipe}` : ''}"`, print))
-      .catch((err) => {
-        console.error(err)
-        console.log('No test file found.')
-        console.log(loc)
-        console.log(filePath)
-      })
+    try {
+      await fs.stat(filePath)
+
+      exec(`${envVars} npx -c "tape ${filePath}${args.pipe ? ` | ${args.pipe}` : ''}"`, print)
+    } catch (err) {
+      console.error(err)
+      console.log('No test file found.')
+      console.log(loc)
+      console.log(filePath)
+    }
   })
 }
 
