@@ -14,9 +14,16 @@
     "type": "git",
     "url": "git+https://github.com/dhershman1/tapidatcher.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "tape",
+    "tap",
+    "test",
+    "tests",
+    "watcher",
+    "tapidatcher"
+  ],
+  "author": "Dustin Hershman<dustinh17@gmail.com>",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/dhershman1/tapidatcher/issues"
   },
@@ -26,7 +33,7 @@
     "minimist": "1.2.5"
   },
   "devDependencies": {
-    "snazzy": "^9.0.0",
-    "standard": "^16.0.3"
+    "snazzy": "9.0.0",
+    "standard": "16.0.3"
   }
 }
