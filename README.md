@@ -8,6 +8,8 @@ Right now I'm working off a very static and simple watcher I built for my own us
 
 - `-t, --tests`: The location of your tests folder (if one exists) this is passed directly to [chokidar](https://github.com/paulmillr/chokidar) so any of the methods used in the string can be applied here
   - Example: `tapidatcher -t tests`
+- `-a, --assume`: Automatically assumes if a file changed is named `index` that it sould use the folder name of this file
+  - Example: `tapidatcher -a`
 - `-s, --src`: The location of your src file (if needed) this is passed directly to [chokidar](https://github.com/paulmillr/chokidar) so any of the methods used in the string can be applied here
   - Example: `tapidatcher -s src`
 - `-c, --cmd`: The command that should **initially** be ran on startup
@@ -16,7 +18,7 @@ Right now I'm working off a very static and simple watcher I built for my own us
   - Example: `tapidatcher -i src`
 - `-e, --ending`: The file name ending used so tapidatcher can tell the difference between tests and source code
   - This is only required if you are using the `-i` argument
-  - Defaults to `.spec.js` if not set
+  - Defaults to `.js` if not set
   - Example: `tapidatcher -e '.unit.js'`
 - `-p, --pipe`: Tell tapidatcher the pipe command you want to run after tape runs
   - Example: `tapidatcher -p 'tap-on -u'`

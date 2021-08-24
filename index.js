@@ -53,13 +53,17 @@ function checkIgnored (ignored) {
  * @param {Object} param1 The arguments object
  * @returns {String} A path string
  */
-async function findTest ({ dir, base, name }, { tests, src, ending }) {
+async function findTest (testFileName, dir, { tests, src }) {
+  const basicLoc = path.join(dir, testFileName)
+
   if (dir === tests) {
-    return path.join(dir, base)
+    return basicLoc
   }
 
+  console.log('fileList :>> ', await globby(tests))
+
   return (await globby(tests))
-    .find(l => l === path.join(dir, base) || l === path.join(dir.replace(src, tests), `${name}${ending}`))
+    .find(l => l === basicLoc || l.includes(testFileName) || l === path.join(dir.replace(src, tests), testFileName))
 }
 
 /**
@@ -69,7 +73,14 @@ async function findTest ({ dir, base, name }, { tests, src, ending }) {
  * @param {String} ending The set ending desired
  * @returns {String} The newly created filename string
  */
-function formatFileName (parsed, ending) {
+function formatFileName (parsed, { assume, ending }) {
+  if (assume && parsed.base === 'index.js') {
+    const brokenDown = parsed.dir.split('/')
+    const folderName = brokenDown[brokenDown.length - 1]
+
+    return `${folderName}${ending}`
+  }
+
   if (parsed.base.includes(ending)) {
     return parsed.base
   }
@@ -96,28 +107,36 @@ function tapidatcher (args) {
   watcher.on('all', async (_, loc) => {
     const parsed = path.parse(loc)
     const { dir } = parsed
-    const fileName = formatFileName(parsed, args.ending)
+    const fileName = formatFileName(parsed, args)
     let filePath = loc
 
     if (isIgnored(loc, parsed)) {
       return
     }
 
+    console.log('fileName :>> ', fileName)
+    console.log('parsed :>> ', parsed)
+
     if (args.inline) {
       filePath = path.join(dir, fileName)
     } else {
-      filePath = await findTest(parsed, args)
+      filePath = await findTest(fileName, parsed.dir, args)
     }
+
+    console.log('filePath :>> ', filePath)
 
     try {
       await fs.stat(filePath)
 
       exec(`${envVars} npx -c "tape ${filePath}${args.pipe ? ` | ${args.pipe}` : ''}"`, print)
     } catch (err) {
-      console.error(err)
-      console.log('No test file found.')
-      console.log(loc)
-      console.log(filePath)
+      if (err.code === 'ENOENT' && err.errno === -2) {
+        console.log('No test file found.')
+        console.log('Triggering File:', loc)
+        console.log('Attempted Search:', filePath)
+      } else {
+        console.error(err)
+      }
     }
   })
 }
