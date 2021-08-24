@@ -98,6 +98,11 @@ function tapidatcher (args) {
   const isIgnored = checkIgnored(new Set(['node_modules'].concat(args.ignore)))
   const envVars = args.env || ''
 
+  console.info('Watcher Started!')
+  console.assert(!args.tests, 'Watching Tests:', args.tests)
+  console.assert(!args.src, 'Watching Source:', args.src)
+  console.info('CWD:', process.cwd())
+
   // Run the tests initially:
   if (args.initial) {
     exec(`${envVars} ${args.cmd}`, print)
