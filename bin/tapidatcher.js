@@ -7,6 +7,7 @@ import tapidatcher from '../index.js'
 const parsedArgs = minimist(process.argv.slice(2), {
   alias: {
     v: 'version',
+    a: 'assume',
     t: 'tests',
     s: 'src',
     f: 'initial',
@@ -18,7 +19,7 @@ const parsedArgs = minimist(process.argv.slice(2), {
     x: 'ignore'
   },
   default: {
-    e: '.spec.js',
+    e: '.js',
     c: 'tape'
   }
 })
