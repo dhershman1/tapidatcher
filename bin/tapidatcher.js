@@ -10,6 +10,7 @@ const parsedArgs = minimist(process.argv.slice(2), {
     a: 'assume',
     t: 'tests',
     s: 'src',
+    r: 'require',
     f: 'initial',
     c: 'cmd',
     i: 'inline',
@@ -20,7 +21,8 @@ const parsedArgs = minimist(process.argv.slice(2), {
   },
   default: {
     e: '.js',
-    c: 'tape'
+    c: 'tape',
+    n: ''
   }
 })
 
