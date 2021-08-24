@@ -107,7 +107,7 @@ function startup (args) {
 
   // Run the tests initially:
   if (args.initial) {
-    exec(`${args.env} ${args.cmd}`, print)
+    exec(`${args.env} ${args.initial}`, print)
   }
 
   return watcher

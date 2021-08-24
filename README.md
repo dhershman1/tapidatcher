@@ -12,8 +12,8 @@ Right now I'm working off a very static and simple watcher I built for my own us
   - Example: `tapidatcher -a`
 - `-s, --src`: The location of your src file (if needed) this is passed directly to [chokidar](https://github.com/paulmillr/chokidar) so any of the methods used in the string can be applied here
   - Example: `tapidatcher -s src`
-- `-c, --cmd`: The command that should **initially** be ran on startup
-  - Example: `tapidatcher -c 'npm t'`
+- `-r, --require`: Tell tapidatcher to use requires with tape, similar to `tape -r`
+  - Example: `tapidatcher -r esm`
 - `-i, --inline`: Tells tapidatcher where to find your code and that your tests are within the same folder as your source code
   - Example: `tapidatcher -i src`
 - `-e, --ending`: The file name ending used so tapidatcher can tell the difference between tests and source code
@@ -25,7 +25,7 @@ Right now I'm working off a very static and simple watcher I built for my own us
 - `-n, --env`: Give a list of env setters to prepend to your test command
   - Example: `tapidatcher -n 'FORCE_COLOR=1'`
 - `-f, --initial`: Tells tapidatcher to run the initial tests command
-  - Example: `tapidatcher -f`
+  - Example: `tapidatcher -f 'npm t'`
 - `-x, --ignore`: Files/folders you want tapidatcher to ignore
 
 > **Important**: You must either use `-i` or `-s -t` or tapidatcher will have no idea how to watch your project!

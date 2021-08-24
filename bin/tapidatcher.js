@@ -12,7 +12,6 @@ const parsedArgs = minimist(process.argv.slice(2), {
     s: 'src',
     r: 'require',
     f: 'initial',
-    c: 'cmd',
     i: 'inline',
     n: 'env',
     p: 'pipe',
