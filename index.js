@@ -60,8 +60,6 @@ async function findTest (testFileName, dir, { tests, src }) {
     return basicLoc
   }
 
-  console.log('fileList :>> ', await globby(tests))
-
   return (await globby(tests))
     .find(l => l === basicLoc || l.includes(testFileName) || l === path.join(dir.replace(src, tests), testFileName))
 }
