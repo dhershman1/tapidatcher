@@ -8,9 +8,9 @@
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
   },
   "scripts": {
-    "test": "tapidatcher -s tests/basic/src -t tests/basic/tests -n 'FORCE_COLOR=1' -p 'tap-on'",
-    "test:inline": "tapidatcher -i tests/inline -n 'FORCE_COLOR=1' -p 'tap-on'",
-    "test:setup": "tape tests/basic/tests/example.spec.js | tap-on",
+    "test": "tapidatcher -a -s examples/basic/src -t examples/basic/tests -n 'FORCE_COLOR=1' -p 'tap-on -s' -e .spec.js",
+    "test:inline": "tapidatcher -i examples/inline -n 'FORCE_COLOR=1' -p 'tap-on' -e .spec.js",
+    "test:setup": "tape examples/basic/tests/example.spec.js | tap-on",
     "lint": "standard index.js | snazzy"
   },
   "bin": {
@@ -36,7 +36,7 @@
   "homepage": "https://github.com/dhershman1/tapidatcher#readme",
   "dependencies": {
     "chokidar": "3.5.2",
-    "globby": "^12.0.1",
+    "globby": "12.0.1",
     "minimist": "1.2.5"
   },
   "devDependencies": {
