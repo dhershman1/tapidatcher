@@ -1,8 +1,12 @@
 import { exec } from 'node:child_process'
 import fs from 'node:fs/promises'
 import path from 'node:path'
+import { promisify } from 'node:util'
 import chokidar from 'chokidar'
 import { globby } from 'globby'
+
+const execP = promisify(exec)
+const CLEAR = process.platform === 'win32' ? '\x1Bc' : '\x1B[2J\x1B[3J\x1B[H'
 
 /**
  * Prints the provided input to the terminal
@@ -10,10 +14,9 @@ import { globby } from 'globby'
  * @param {Error} err An error object
  * @param {String} stdout A string to output to the terminal
  */
-function print (err, stdout) {
-  console.log('print err :>> ', err)
-  if (err) {
-    console.error('Error in watcher', err)
+function print ({ stderr, stdout }) {
+  if (stderr) {
+    console.error('Error in watcher', stderr)
   } else {
     console.log(stdout)
   }
@@ -91,7 +94,14 @@ function formatFileName (parsed, { assume, ending }) {
  * Runs a super simple start message for the watcher
  * @param {Object} args The arguments object
  */
-function startup (args) {
+async function startup (args) {
+  // Run the tests initially:
+  if (args.initial) {
+    console.info('Started Initial Run...')
+    console.log('Initial :>> ', `${args.env} ${args.initial}`)
+    print(await execP(`${args.env} ${args.initial}`))
+  }
+
   const watcher = createWatcher(args)
   console.group('Watcher Started!')
 
@@ -105,11 +115,6 @@ function startup (args) {
   console.info('CWD:', process.cwd())
   console.groupEnd('Watcher Started!')
 
-  // Run the tests initially:
-  if (args.initial) {
-    exec(`${args.env} ${args.initial}`, print)
-  }
-
   return watcher
 }
 
@@ -118,12 +123,13 @@ function startup (args) {
  * @public
  * @param {Object} args The arguments object from the terminal command
  */
-function tapidatcher (args) {
-  const watcher = startup(args)
+async function tapidatcher (args) {
+  const watcher = await startup(args)
   const isIgnored = checkIgnored(new Set(['node_modules'].concat(args.ignore)))
 
   // Turn on the watcher to listen for changes in the app
   watcher.on('all', async (_, loc) => {
+    process.stdout.write(CLEAR)
     const parsed = path.parse(loc)
     const { dir } = parsed
     const fileName = formatFileName(parsed, args)
@@ -133,21 +139,15 @@ function tapidatcher (args) {
       return
     }
 
-    console.log('fileName :>> ', fileName)
-
     if (args.inline) {
       filePath = path.join(dir, fileName)
     } else {
       filePath = await findTest(fileName, parsed.dir, args)
     }
 
-    console.log('filePath :>> ', filePath)
-    console.log('exec :>> ', `${args.env} npx -c "tape ${args.require ? `-r ${args.require} ` : ''}${filePath}${args.pipe ? ` | ${args.pipe}` : ''}"`)
-
     try {
       await fs.stat(filePath)
-
-      exec(`${args.env} npx -c "tape ${args.require ? `-r ${args.require} ` : ''}${filePath}${args.pipe ? ` | ${args.pipe}` : ''}"`, print)
+      print(await execP(`${args.env} npx -c "tape ${args.require ? `-r ${args.require} ` : ''}${filePath}${args.pipe ? ` | ${args.pipe}` : ''}"`))
     } catch (err) {
       if (err.code === 'ENOENT' && err.errno === -2) {
         console.log('No test file found.')
