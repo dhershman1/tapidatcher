@@ -11,6 +11,7 @@ import { globby } from 'globby'
  * @param {String} stdout A string to output to the terminal
  */
 function print (err, stdout) {
+  console.log('print err :>> ', err)
   if (err) {
     console.error('Error in watcher', err)
   } else {
@@ -87,24 +88,39 @@ function formatFileName (parsed, { assume, ending }) {
 }
 
 /**
+ * Runs a super simple start message for the watcher
+ * @param {Object} args The arguments object
+ */
+function startup (args) {
+  const watcher = createWatcher(args)
+  console.group('Watcher Started!')
+
+  if (args.tests) {
+    console.info('Watching Tests:', args.tests)
+  }
+
+  if (args.src) {
+    console.info('Watching Source:', args.src || args.inline)
+  }
+  console.info('CWD:', process.cwd())
+  console.groupEnd('Watcher Started!')
+
+  // Run the tests initially:
+  if (args.initial) {
+    exec(`${args.env} ${args.cmd}`, print)
+  }
+
+  return watcher
+}
+
+/**
  * Creates a intelligent watcher for tape tests
  * @public
  * @param {Object} args The arguments object from the terminal command
  */
 function tapidatcher (args) {
-  const watcher = createWatcher(args)
+  const watcher = startup(args)
   const isIgnored = checkIgnored(new Set(['node_modules'].concat(args.ignore)))
-  const envVars = args.env || ''
-
-  console.info('Watcher Started!')
-  console.assert(!args.tests, 'Watching Tests:', args.tests)
-  console.assert(!args.src, 'Watching Source:', args.src)
-  console.info('CWD:', process.cwd())
-
-  // Run the tests initially:
-  if (args.initial) {
-    exec(`${envVars} ${args.cmd}`, print)
-  }
 
   // Turn on the watcher to listen for changes in the app
   watcher.on('all', async (_, loc) => {
@@ -118,7 +134,6 @@ function tapidatcher (args) {
     }
 
     console.log('fileName :>> ', fileName)
-    console.log('parsed :>> ', parsed)
 
     if (args.inline) {
       filePath = path.join(dir, fileName)
@@ -127,11 +142,12 @@ function tapidatcher (args) {
     }
 
     console.log('filePath :>> ', filePath)
+    console.log('exec :>> ', `${args.env} npx -c "tape ${args.require ? `-r ${args.require} ` : ''}${filePath}${args.pipe ? ` | ${args.pipe}` : ''}"`)
 
     try {
       await fs.stat(filePath)
 
-      exec(`${envVars} npx -c "tape ${filePath}${args.pipe ? ` | ${args.pipe}` : ''}"`, print)
+      exec(`${args.env} npx -c "tape ${args.require ? `-r ${args.require} ` : ''}${filePath}${args.pipe ? ` | ${args.pipe}` : ''}"`, print)
     } catch (err) {
       if (err.code === 'ENOENT' && err.errno === -2) {
         console.log('No test file found.')
