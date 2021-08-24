@@ -26,7 +26,7 @@ Right now I'm working off a very static and simple watcher I built for my own us
   - Example: `tapidatcher -f`
 - `-x, --ignore`: Files/folders you want tapidatcher to ignore
 
-> **Important**: You must either use `-i` or `-s -c` or tapidatcher will have no idea how to watch your project!
+> **Important**: You must either use `-i` or `-s -t` or tapidatcher will have no idea how to watch your project!
 
 ## Notes
 
