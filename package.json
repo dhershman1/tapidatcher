@@ -37,12 +37,12 @@
   "homepage": "https://github.com/dhershman1/tapidatcher#readme",
   "dependencies": {
     "chokidar": "3.5.2",
-    "minimist": "1.2.5"
+    "minimist": "1.2.5",
+    "tape": "5.3.1"
   },
   "devDependencies": {
     "snazzy": "9.0.0",
     "standard": "16.0.3",
-    "tap-on": "0.3.0",
-    "tape": "5.3.1"
+    "tap-on": "0.3.0"
   }
 }
