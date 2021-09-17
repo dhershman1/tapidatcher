@@ -13,7 +13,13 @@
     "test:inline": "tapidatcher -s examples/inline -n 'FORCE_COLOR=1' -p 'tap-on' -e .spec.js",
     "test:setup": "tape examples/basic/tests/example.spec.js | tap-on",
     "test:ignore": "tapidatcher -s examples/inline -x 'tmp.spec.js' -n 'FORCE_COLOR=1' -p 'tap-on' -e .spec.js",
-    "lint": "standard index.js | snazzy"
+    "lint": "standard | snazzy"
+  },
+  "standard": {
+    "ignore": [
+      "node_modules",
+      "examples/"
+    ]
   },
   "bin": {
     "tapidatcher": "bin/tapidatcher.js"
@@ -28,7 +34,8 @@
     "test",
     "tests",
     "watcher",
-    "tapidatcher"
+    "tapidatcher",
+    "chokidar"
   ],
   "author": "Dustin Hershman<dustinh17@gmail.com>",
   "license": "MIT",
