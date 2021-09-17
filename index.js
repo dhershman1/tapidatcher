@@ -3,7 +3,6 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import { promisify } from 'node:util'
 import chokidar from 'chokidar'
-import { globby } from 'globby'
 
 const execP = promisify(exec)
 const CLEAR = process.platform === 'win32' ? '\x1Bc' : '\x1B[2J\x1B[3J\x1B[H'
@@ -28,13 +27,13 @@ function print ({ stderr, stdout }) {
  * @param {Object} param0 The arguments object
  * @returns {Object} A chokidar watcher object
  */
-function createWatcher ({ inline, src, tests }) {
-  if (!inline && (!src || !tests)) {
-    throw new Error('Tapidatcher requires at least the -i or the -s -t arguments')
+function createWatcher ({ src, tests }) {
+  if (!src && !tests) {
+    throw new Error('Tapidatcher requires at least the -s argument')
   }
 
-  if (inline) {
-    return chokidar.watch(inline, { ignoreInitial: true })
+  if (!tests) {
+    return chokidar.watch([src], { ignoreInitial: true })
   }
 
   return chokidar.watch([src, tests], { ignoreInitial: true })
@@ -57,15 +56,14 @@ function checkIgnored (ignored) {
  * @param {Object} param1 The arguments object
  * @returns {String} A path string
  */
-async function findTest (testFileName, dir, { tests, src }) {
+function findTest (testFileName, dir, { tests, src }) {
   const basicLoc = path.join(dir, testFileName)
 
   if (dir === tests) {
     return basicLoc
   }
 
-  return (await globby(tests))
-    .find(l => l === basicLoc || l.includes(testFileName) || l === path.join(dir.replace(src, tests), testFileName))
+  return path.join(dir.replace(src, tests), testFileName)
 }
 
 /**
@@ -75,7 +73,7 @@ async function findTest (testFileName, dir, { tests, src }) {
  * @param {String} ending The set ending desired
  * @returns {String} The newly created filename string
  */
-function formatFileName (parsed, { assume, ending }) {
+function formatFilePath (parsed, { assume, ending }) {
   if (assume && parsed.base === 'index.js') {
     const brokenDown = parsed.dir.split('/')
     const folderName = brokenDown[brokenDown.length - 1]
@@ -93,26 +91,26 @@ function formatFileName (parsed, { assume, ending }) {
 /**
  * Runs a super simple start message for the watcher
  * @param {Object} args The arguments object
+ * @returns {Object} The created watcher and the test directories found
  */
 async function startup (args) {
   // Run the tests initially:
   if (args.initial) {
     console.info('Started Initial Run...')
-    console.log('Initial :>> ', `${args.env} ${args.initial}`)
+    console.info('Initial :>> ', `${args.env} ${args.initial}`)
     print(await execP(`${args.env} ${args.initial}`))
   }
 
-  const watcher = createWatcher(args)
   console.group('Watcher Started!')
+  const watcher = createWatcher(args)
 
   if (args.tests) {
     console.info('Watching Tests:', args.tests)
   }
 
   if (args.src) {
-    console.info('Watching Source:', args.src || args.inline)
+    console.info('Watching Source:', args.src)
   }
-  console.info('CWD:', process.cwd())
   console.groupEnd('Watcher Started!')
 
   return watcher
@@ -131,16 +129,15 @@ async function tapidatcher (args) {
   watcher.on('all', async (_, loc) => {
     process.stdout.write(CLEAR)
     const parsed = path.parse(loc)
-    const { dir } = parsed
-    const fileName = formatFileName(parsed, args)
+    const fileName = formatFilePath(parsed, args)
     let filePath = loc
 
     if (isIgnored(loc, parsed)) {
       return
     }
 
-    if (args.inline) {
-      filePath = path.join(dir, fileName)
+    if (!args.tests) {
+      filePath = path.join(parsed.dir, fileName)
     } else {
       filePath = await findTest(fileName, parsed.dir, args)
     }
@@ -150,9 +147,9 @@ async function tapidatcher (args) {
       print(await execP(`${args.env} npx -c "tape ${args.require ? `-r ${args.require} ` : ''}${filePath}${args.pipe ? ` | ${args.pipe}` : ''}"`))
     } catch (err) {
       if (err.code === 'ENOENT' && err.errno === -2) {
-        console.log('No test file found.')
-        console.log('Triggering File:', loc)
-        console.log('Attempted Search:', filePath)
+        console.error('No test file found.')
+        console.error('Triggering File:', loc)
+        console.error('Attempted Search:', filePath)
       } else {
         console.error(err)
       }
