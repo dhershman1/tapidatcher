@@ -12,6 +12,7 @@
     "test": "tapidatcher -a -s examples/basic/src -t examples/basic/tests -n 'FORCE_COLOR=1' -p 'tap-on -s' -e .spec.js",
     "test:inline": "tapidatcher -s examples/inline -n 'FORCE_COLOR=1' -p 'tap-on' -e .spec.js",
     "test:setup": "tape examples/basic/tests/example.spec.js | tap-on",
+    "test:ignore": "tapidatcher -s examples/inline -x 'tmp.spec.js' -n 'FORCE_COLOR=1' -p 'tap-on' -e .spec.js",
     "lint": "standard index.js | snazzy"
   },
   "bin": {
