@@ -46,7 +46,7 @@ function createWatcher ({ src, tests }) {
  * @returns {Function} A function that uses the provided list to check for ignored values
  */
 function checkIgnored (ignored) {
-  return (str, parsed) => ignored.has(parsed.dir) || ignored.has(str) || ignored.has(parsed.base)
+  return (names) => names.some(n => ignored.has(n))
 }
 
 /**
@@ -123,18 +123,13 @@ async function startup (args) {
  */
 async function tapidatcher (args) {
   const watcher = await startup(args)
-  const isIgnored = checkIgnored(new Set(['node_modules'].concat(args.ignore)))
+  const isIgnored = checkIgnored(new Set(['node_modules'].concat(args.ignore.split(','))))
 
   // Turn on the watcher to listen for changes in the app
   watcher.on('all', async (_, loc) => {
-    process.stdout.write(CLEAR)
     const parsed = path.parse(loc)
     const fileName = formatFilePath(parsed, args)
     let filePath = loc
-
-    if (isIgnored(loc, parsed)) {
-      return
-    }
 
     if (!args.tests) {
       filePath = path.join(parsed.dir, fileName)
@@ -142,7 +137,12 @@ async function tapidatcher (args) {
       filePath = await findTest(fileName, parsed.dir, args)
     }
 
+    if (isIgnored([loc, fileName, filePath, parsed.dir, parsed.base])) {
+      return
+    }
+
     try {
+      process.stdout.write(CLEAR)
       await fs.stat(filePath)
       print(await execP(`${args.env} npx -c "tape ${args.require ? `-r ${args.require} ` : ''}${filePath}${args.pipe ? ` | ${args.pipe}` : ''}"`))
     } catch (err) {
