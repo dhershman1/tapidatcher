@@ -1,11 +1,19 @@
 # Tapidatcher
 
-I plan on tapidatcher becoming an intelligent watcher for tape tests, similar to something like jests watcher.
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
-Right now I'm working off a very static and simple watcher I built for my own use cases, I need to make it more dynamic so that it fits more projects accordingly.
+Tapidatcher uses [chokidar](https://github.com/paulmillr/chokidar) to watch over source and test file systems, so you can run tests with tape while you write code!
+
+> [Tape](https://github.com/substack/tape) is included as a dependency, so you only need to use tapidatcher when running tests
+
+## Why?
+
+I used [Jest](https://github.com/facebook/jest) a little bit recently, and found that I did enjoy their test watcher setup quite a bit. I prefer to use tape for all my testing needs, but lacked this functionality, so I decided to take a stab at it myself!
 
 ## Arguments
 
+- `-v, --version`: Display the current tapidatcher version
+- `-h, --help`: Displays some helpful text for the cli
 - `-t, --tests`: The location of your tests folder (if one exists) this is passed directly to [chokidar](https://github.com/paulmillr/chokidar) so any of the methods used in the string can be applied here
   - Example: `tapidatcher -t tests`
 - `-a, --assume`: Automatically assumes if a file changed is named `index` that it sould use the folder name of this file
@@ -14,8 +22,6 @@ Right now I'm working off a very static and simple watcher I built for my own us
   - Example: `tapidatcher -s src`
 - `-r, --require`: Tell tapidatcher to use requires with tape, similar to `tape -r`
   - Example: `tapidatcher -r esm`
-- `-i, --inline`: Tells tapidatcher where to find your code and that your tests are within the same folder as your source code
-  - Example: `tapidatcher -i src`
 - `-e, --ending`: The file name ending used so tapidatcher can tell the difference between tests and source code
   - This is only required if you are using the `-i` argument
   - Defaults to `.js` if not set
@@ -24,14 +30,25 @@ Right now I'm working off a very static and simple watcher I built for my own us
   - Example: `tapidatcher -p 'tap-on -u'`
 - `-n, --env`: Give a list of env setters to prepend to your test command
   - Example: `tapidatcher -n 'FORCE_COLOR=1'`
-- `-f, --initial`: Tells tapidatcher to run the initial tests command
+- `-i, --initial`: Tells tapidatcher to run the initial tests command
   - Example: `tapidatcher -f 'npm t'`
 - `-x, --ignore`: Files/folders you want tapidatcher to ignore
+  - Example: `tapidatcher -x 'example.unit.js'`
 
-> **Important**: You must either use `-i` or `-s -t` or tapidatcher will have no idea how to watch your project!
+> **Important**: You must at least provide a source argument to wath (`-s, --src`)
 
-## Notes
+If you don't provide the tests argument (`-t, --tests`) then Tapidatcher will assume all of your tests are inline and watch accordingly
 
-When searching for a test, tapidatcher will attempt to check if the file changed has a corrosponding test name, if the source file name is something like `index.js` then tapidatcher will attempt to use the folder name of that file as the test name.
+## Usage
 
-I'll fill the rest of this out eventually
+When searching for a test, tapidatcher will attempt to check if the file changed has a corrosponding test name, if the source file name is something like `index.js` and you have the `--assume` argument set, then tapidatcher will attempt to use the folder name of that file as the test name.
+
+Tapiatcher can be used like any other cli tool
+
+```cli
+$ tapidatcher -a -s examples/basic/src -t examples/basic/tests -n 'FORCE_COLOR=1' -p 'tap-on -s' -e .spec.js
+
+$ tapidatcher -i examples/inline -n 'FORCE_COLOR=1' -p 'tap-on' -e .spec.js
+
+$ tapidatcher -s examples/inline -x 'tmp.spec.js,examples/basic' -n 'FORCE_COLOR=1' -p 'tap-on' -e .spec.js
+```
