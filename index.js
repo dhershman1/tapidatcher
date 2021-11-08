@@ -97,8 +97,8 @@ async function startup (args) {
   // Run the tests initially:
   if (args.initial) {
     console.info('Started Initial Run...')
-    console.info('Initial :>> ', `${args.env} ${args.initial}`)
-    print(await execP(`${args.env} ${args.initial}`))
+    console.info('Initial :>> ', `${args.env.join(' ')} ${args.initial}`)
+    print(await execP(`${args.env.join(' ')} ${args.initial}`))
   }
 
   console.group('Watcher Started!')
@@ -123,7 +123,7 @@ async function startup (args) {
  */
 async function tapidatcher (args) {
   const watcher = await startup(args)
-  const isIgnored = checkIgnored(new Set(['node_modules'].concat(args.ignore.split(','))))
+  const isIgnored = checkIgnored(new Set(['node_modules'].concat(args.ignore)))
 
   // Turn on the watcher to listen for changes in the app
   watcher.on('all', async (_, loc) => {
@@ -144,7 +144,7 @@ async function tapidatcher (args) {
     try {
       process.stdout.write(CLEAR)
       await fs.stat(filePath)
-      print(await execP(`${args.env} npx -c "tape ${args.require ? `-r ${args.require} ` : ''}${filePath}${args.pipe ? ` | ${args.pipe}` : ''}"`))
+      print(await execP(`${args.env} npx -c "tape ${args.require ? `-r ${args.require.join(' ')} ` : ''}${filePath}${args.pipe ? ` | ${args.pipe.join(' ')}` : ''}"`))
     } catch (err) {
       if (err.code === 'ENOENT' && err.errno === -2) {
         console.error('No test file found.')

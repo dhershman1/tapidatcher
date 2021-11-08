@@ -1,5 +1,6 @@
 #! /usr/bin/env node
 
+import fs from 'fs/promises'
 import minimist from 'minimist'
 import tapidatcher from '../index.js'
 
@@ -8,6 +9,7 @@ const parsedArgs = minimist(process.argv.slice(2), {
   alias: {
     h: 'help',
     v: 'version',
+    c: 'config',
     a: 'assume',
     t: 'tests',
     s: 'src',
@@ -24,11 +26,58 @@ const parsedArgs = minimist(process.argv.slice(2), {
   }
 })
 
+function formatArguments (args) {
+  const splittable = ['r', 'require', 'n', 'env', 'p', 'pipe', 'x', 'ignore']
+
+  splittable.forEach(k => {
+    if (args[k]) {
+      args[k] = args[k].split(',')
+    }
+  })
+
+  return args
+}
+
+function startup (args) {
+  if (args.config) {
+    const configPath = typeof args.config === 'string' ? args.config : 'tapidatcher.json'
+
+    fs.readFile(configPath)
+      .then(data => {
+        let config = JSON.parse(data)
+
+        if (/package\.json/g.test(configPath)) {
+          config = config.tapidatcher
+        }
+
+        config.env = Object.entries(config.env).map(([k, val]) => `${k}=${val}`)
+
+        console.log(config)
+        tapidatcher(config)
+      })
+      .catch(err => {
+        throw err
+      })
+  } else {
+    const config = formatArguments(args)
+
+    tapidatcher(config)
+  }
+}
+
 /* Output */
 if (parsedArgs.version) {
   // Placeholder until a better json handling by ES6 imports
   // https://github.com/tc39/proposal-json-modules
-  console.log('v0.1.0')
+  fs.readFile('./package.json')
+    .then(data => {
+      const { version } = JSON.parse(data)
+
+      console.log(version)
+    })
+    .catch(err => {
+      throw err
+    })
 } else if (parsedArgs.help) {
   console.log(`
     Usage
@@ -40,6 +89,9 @@ if (parsedArgs.version) {
 
       --version, -v
         Get tapidatcher version
+
+      --config, -c
+        Tell tapidatcher to use a config file (defaults to tapidatcher.json)
 
       --assume, -a
         Automatically assumes if a file changed is named index that it sould use the folder name of this file
@@ -73,5 +125,5 @@ if (parsedArgs.version) {
       tapidatcher -i examples/inline -n 'FORCE_COLOR=1' -p 'tap-on' -e .spec.js
   `)
 } else {
-  tapidatcher(parsedArgs)
+  startup(parsedArgs)
 }
