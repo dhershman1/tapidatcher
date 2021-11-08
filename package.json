@@ -35,6 +35,7 @@
     "tape",
     "tap",
     "test",
+    "testing",
     "tests",
     "watcher",
     "tapidatcher",
@@ -53,7 +54,7 @@
   },
   "devDependencies": {
     "snazzy": "9.0.0",
-    "standard": "16.0.3",
+    "standard": "16.0.4",
     "tap-on": "0.3.0"
   }
 }
