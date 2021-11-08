@@ -1,0 +1,20 @@
+{
+  "tests": "basic/src",
+  "src": "basic/src",
+  "ending": ".spec.js",
+  "ignore": [
+    "example.unit.js",
+    "ignored"
+  ],
+  "assume": true,
+  "pipe": [
+    "tap-on -s"
+  ],
+  "initial": "npm run initial",
+  "require": [
+    "esm"
+  ],
+  "env": {
+    "FORCE_COLOR": 1
+  }
+}
